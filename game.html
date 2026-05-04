@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>終極猜數字遊戲 - Simple Guess Game</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        h1 {
+            color: #1a73e8;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            color: #5f6368;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        input[type="number"] {
+            padding: 10px;
+            width: 100px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus {
+            border-color: #1a73e8;
+        }
+
+        button {
+            padding: 10px 25px;
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #1557b0;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        #message {
+            margin-top: 1.5rem;
+            font-weight: bold;
+            min-height: 1.5em;
+        }
+
+        .stats {
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: #70757a;
+            border-top: 1px solid #eee;
+            padding-top: 1rem;
+        }
+
+        .history {
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .hint { color: #f39c12; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>猜數字遊戲</h1>
+    <p>我心裡想了一個 1 到 100 之間的數字。<br>你有 10 次機會！</p>
+
+    <div class="input-group">
+        <input type="number" id="guessInput" placeholder="??" min="1" max="100">
+        <button onclick="checkGuess()" id="submitBtn">猜！</button>
+    </div>
+
+    <div id="message"></div>
+
+    <div class="stats">
+        <div>剩餘次數：<span id="attempts">10</span></div>
+        <div class="history">猜過的紀錄：<span id="historyLog">-</span></div>
+        <button id="resetBtn" style="display: none; margin-top: 15px; background-color: #34a853;" onclick="initGame()">重新開始</button>
+    </div>
+</div>
+
+<script>
+    let targetNumber;
+    let attemptsLeft;
+    let history;
+
+    const guessInput = document.getElementById('guessInput');
+    const message = document.getElementById('message');
+    const attemptsDisplay = document.getElementById('attempts');
+    const historyLog = document.getElementById('historyLog');
+    const submitBtn = document.getElementById('submitBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    function initGame() {
+        targetNumber = Math.floor(Math.random() * 100) + 1;
+        attemptsLeft = 10;
+        history = [];
+        
+        message.textContent = "";
+        message.className = "";
+        attemptsDisplay.textContent = attemptsLeft;
+        historyLog.textContent = "-";
+        guessInput.value = "";
+        guessInput.disabled = false;
+        submitBtn.disabled = false;
+        resetBtn.style.display = "none";
+        
+        console.log("答案是：" + targetNumber); // 除錯用
+    }
+
+    function checkGuess() {
+        const userGuess = parseInt(guessInput.value);
+
+        // 防呆機制
+        if (isNaN(userGuess) || userGuess < 1 || userGuess > 100) {
+            showMessage("請輸入 1 到 100 之間的有效數字！", "error");
+            return;
+        }
+
+        attemptsLeft--;
+        history.push(userGuess);
+        historyLog.textContent = history.join(', ');
+        attemptsDisplay.textContent = attemptsLeft;
+
+        if (userGuess === targetNumber) {
+            showMessage(`🎉 恭喜！答對了！答案就是 ${targetNumber}`, "success");
+            endGame();
+        } else if (attemptsLeft === 0) {
+            showMessage(`👻 遊戲結束！正確答案是 ${targetNumber}`, "error");
+            endGame();
+        } else {
+            if (userGuess < targetNumber) {
+                showMessage("太小了！再試一次。", "hint");
+            } else {
+                showMessage("太大了！再試一次。", "hint");
+            }
+        }
+
+        guessInput.value = "";
+        guessInput.focus();
+    }
+
+    function showMessage(msg, type) {
+        message.textContent = msg;
+        message.className = type;
+    }
+
+    function endGame() {
+        guessInput.disabled = true;
+        submitBtn.disabled = true;
+        resetBtn.style.display = "inline-block";
+    }
+
+    // 支援 Enter 鍵
+    guessInput.addEventListener("keyup", function(event) {
+        if (event.key === "Enter") {
+            checkGuess();
+        }
+    });
+
+    // 初始化遊戲
+    initGame();
+</script>
+
+</body>
+</html>

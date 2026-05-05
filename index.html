@@ -157,8 +157,33 @@
         }
 
         attemptsLeft--;
-        history.push(userGuess);
-        historyLog.textContent = history.join(', ');
+        history.push({
+            guess: userGuess,
+            status: userGuess === targetNumber ? "correct" : (userGuess < targetNumber ? "too low" : "too high")
+        });
+        
+        // 更新歷史紀錄顯示
+        historyLog.innerHTML = "";
+        history.forEach(item => {
+            let span = document.createElement("span");
+            span.textContent = item.guess;
+            span.style.padding = "2px 6px";
+            span.style.margin = "0 2px";
+            span.style.borderRadius = "3px";
+            span.style.color = "white";
+            
+            if (item.status === "correct") {
+                span.style.backgroundColor = "#28a745";
+            } else if (item.status === "too low") {
+                span.style.backgroundColor = "#17a2b8"; // 藍色代表太小
+                span.title = "太小";
+            } else {
+                span.style.backgroundColor = "#dc3545"; // 紅色代表太大
+                span.title = "太大";
+            }
+            historyLog.appendChild(span);
+        });
+
         attemptsDisplay.textContent = attemptsLeft;
 
         if (userGuess === targetNumber) {
